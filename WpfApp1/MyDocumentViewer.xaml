@@ -38,6 +38,6 @@
                 <ComboBox x:Name="FontSizeComboBox" Height="32" Width="50" />
             </ToolBar>
         </ToolBarTray>
-        <RichTextBox Background="#FFF5F3E1" />
+        <RichTextBox Background="#FFF5F3E1" TextChanged="RichTextBox_TextChanged" />
     </DockPanel>
 </Window>
