@@ -7,10 +7,34 @@
         mc:Ignorable="d"
         Title="MyDocumentViewer" Height="450" Width="800">
     <DockPanel>
-        <ToolBarTray DockPanel.Dock="Top" Height="40" Width="300" HorizontalAlignment="Left">
-
+        <ToolBarTray DockPanel.Dock="Top" Height="40" Width="341"  HorizontalAlignment="Left">
+            <ToolBar x:Name="FileToolBar" Height="40" Width="200">
+                <Button x:Name="NewFileButton" Width="38" Height="38">
+                    <Image Height="32" Width="32" Source=""/>
+                </Button>
+                <Button x:Name="OpenFileButton" Width="38" Height="38">
+                    <Image Height="32" Width="32" Source=""/>
+                </Button>
+                <Button x:Name="SaveFileButton" Width="38" Height="38">
+                    <Image Height="32" Width="32" Source=""/>
+                </Button>
+                <Button x:Name="ClearFileButton" Width="38" Height="38">
+                    <Image Height="32" Width="32" Source=""/>
+                </Button>
+            </ToolBar>
+            <ToolBar x:Name="EditingToolBar" Background="#FFFDF0EE">
+                <ToggleButton x:Name="BoldButton" Width="38" Height="38">
+                    <Image Height="32" Width="32" Source=""/>
+                </ToggleButton>
+                <ToggleButton x:Name="IButton" Width="38" Height="38">
+                    <Image Height="32" Width="32" Source=""/>
+                </ToggleButton>
+                <ToggleButton x:Name="UButton" Width="38" Height="38">
+                    <Image Height="32" Width="32" Source=""/>
+                </ToggleButton>
+            </ToolBar>
         </ToolBarTray>
-        <RichTextBox Width="800" Background="#FFECCB83">
+        <RichTextBox Background="#FFF9F6E3">
             <FlowDocument>
                 
             </FlowDocument>
