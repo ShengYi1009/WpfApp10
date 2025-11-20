@@ -24,13 +24,13 @@
                 </Button>
             </ToolBar>
             <ToolBar x:Name="EditingToolBar" Height="40" Width="400" Background="#FFF7EBE5">
-                <ToggleButton x:Name="BoldButton" Width="38" Height="38" FontWeight="Bold" FontSize="16">
+                <ToggleButton x:Name="BoldButton" Width="38" Height="38" FontWeight="Bold" FontSize="16" Command="EditingCommands.ToggleBold">
                     <Image Width="32" Height="32" Source="/bold.png"/>
                 </ToggleButton>
-                <ToggleButton x:Name="ItalicButton" Width="38" Height="38" FontWeight="Bold" FontSize="16">
+                <ToggleButton x:Name="ItalicButton" Width="38" Height="38" FontWeight="Bold" FontSize="16" Command="EditingCommands.ToggleItalic">
                     <Image Width="32" Height="32" Source="/italic.png"/>
                 </ToggleButton>
-                <ToggleButton x:Name="UnderlineButton" Width="38" Height="38" FontWeight="Bold" FontSize="16">
+                <ToggleButton x:Name="UnderlineButton" Width="38" Height="38" FontWeight="Bold" FontSize="16" Command="EditingCommands.ToggleUnderline">
                     <Image Width="32" Height="32" Source="/underline.png"/>
                 </ToggleButton>
                 <xctk:ColorPicker x:Name="FontColorPicker" Width="100" Height="32" DisplayColorAndName="True"/>
@@ -38,6 +38,7 @@
                 <ComboBox x:Name="FontSizeComboBox" Height="32" Width="50" />
             </ToolBar>
         </ToolBarTray>
-        <RichTextBox Background="#FFF5F3E1" TextChanged="RichTextBox_TextChanged" />
+        <RichTextBox Background="#FFF5F3E1" />
     </DockPanel>
+
 </Window>
