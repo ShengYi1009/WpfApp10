@@ -6,24 +6,29 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="MyDocumentViewer" Height="450" Width="800">
+        Title="MyDocumentViewer" Height="471" Width="878">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.New" Executed="NewCommand_Executed"/>
+        <CommandBinding Command="ApplicationCommands.Open" Executed="OpenCommand_Executed" />
+        <CommandBinding Command="ApplicationCommands.Save" Executed="SaveCommand_Executed"/>
+    </Window.CommandBindings>
     <DockPanel x:Name="documentRichTextBox">
         <ToolBarTray DockPanel.Dock="Top" Height="40" Width="800" HorizontalAlignment="Left">
             <ToolBar x:Name="ApplicationToolBar" Height="40" Width="200">
-                <Button x:Name="NewFileButton" Width="38" Height="38">
+                <Button x:Name="NewFileButton" Width="38" Height="38" Command="ApplicationCommands.New">
                     <Image Height="32" Width="32" Source="/new.png"/>
                 </Button>
-                <Button x:Name="OpenFileButton" Width="38" Height="38">
+                <Button x:Name="OpenFileButton" Width="38" Height="38" Command="ApplicationCommands.Open">
                     <Image Height="32" Width="32" Source="/open.png"/>
                 </Button>
-                <Button x:Name="SaveFileButton" Width="38" Height="38">
+                <Button x:Name="SaveFileButton" Width="38" Height="38" Command="ApplicationCommands.Save">
                     <Image Height="32" Width="32" Source="/save.png"/>
                 </Button>
-                <Button x:Name="ClearFileButton" Width="38" Height="38">
+                <Button x:Name="ClearFileButton" Width="38" Height="38" Click="ClearFileButton_Click">
                     <Image Height="32" Width="32" Source="/trash.png"/>
                 </Button>
             </ToolBar>
-            <ToolBar x:Name="EditingToolBar" Height="40" Width="400" Background="#FFF7EBE5">
+            <ToolBar x:Name="EditingToolBar" Height="40" Width="800" Background="#FFF7EBE5">
                 <ToggleButton x:Name="BoldButton" Width="38" Height="38" FontWeight="Bold" FontSize="16" Command="EditingCommands.ToggleBold">
                     <Image Width="32" Height="32" Source="/bold.png"/>
                 </ToggleButton>
@@ -33,12 +38,32 @@
                 <ToggleButton x:Name="UnderlineButton" Width="38" Height="38" FontWeight="Bold" FontSize="16" Command="EditingCommands.ToggleUnderline">
                     <Image Width="32" Height="32" Source="/underline.png"/>
                 </ToggleButton>
-                <xctk:ColorPicker x:Name="FontColorPicker" Width="100" Height="32" DisplayColorAndName="True"/>
-                <ComboBox x:Name="FontFamilyComboBox" Height="32" Width="100"/>
-                <ComboBox x:Name="FontSizeComboBox" Height="32" Width="50" />
+
+                <xctk:ColorPicker x:Name="FontColorPicker" Width="100" Height="32" DisplayColorAndName="True" SelectedColorChanged="FontColorPicker_SelectedColorChanged"/>
+
+                <ComboBox x:Name="FontFamilyComboBox" Height="32" Width="100" SelectionChanged="FontFamilyComboBox_SelectionChanged"/>
+
+                <xctk:ColorPicker x:Name="BackgroundColorPicker" 
+                      Width="100" 
+                      Height="32" 
+                      ToolTip="背景顏色 (高亮)" 
+                      DisplayColorAndName="True" 
+                      SelectedColorChanged="BackgroundColorPicker_SelectedColorChanged"/>
+
+                <ComboBox x:Name="FontSizeComboBox" Height="32" Width="50" SelectionChanged="FontSizeComboBox_SelectionChanged" />
             </ToolBar>
         </ToolBarTray>
-        <RichTextBox Background="#FFF5F3E1" />
+        <StatusBar Height="30" Background="LightGray" DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <Label x:Name="ApplicationLabel" Width="100" Height="30" Margin="30,0,0,0" Content="Ready" FontSize="16"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <Label x:Name="TextFormatLabel" Width="200" Height="30" Margin="50,0,0,0" />
+            </StatusBarItem>
+        </StatusBar>
+        <RichTextBox x:Name="MainRichTextBox" Background="#FFF5F3E1" SelectionChanged="MainRichTextBox_SelectionChanged">
+            <FlowDocument />
+        </RichTextBox>
     </DockPanel>
 
 </Window>
