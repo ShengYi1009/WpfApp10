@@ -19,7 +19,6 @@ namespace WpfApp1
     /// <summary>
     /// MyDocumentViewer.xaml 的互動邏輯
     /// </summary>
-    /// 
     public partial class MyDocumentViewer : Window
     {
         Color fontColor = Colors.Black;
@@ -28,6 +27,8 @@ namespace WpfApp1
         public MyDocumentViewer()
         {
             InitializeComponent();
+
+            // 初始化設定
             FontColorPicker.SelectedColor = fontColor;
             foreach (FontFamily fontFamily in Fonts.SystemFontFamilies)
             {
@@ -41,11 +42,34 @@ namespace WpfApp1
             };
             FontSizeComboBox.SelectedIndex = 4;
             BackgroundColorPicker.SelectedColor = Colors.White;
+
+            // 🔔 初始狀態列訊息
+            UpdateStatusBar("應用程式已啟動。");
+        }
+
+        /// <summary>
+        /// 🔔 更新狀態列主要訊息的簡化方法。
+        /// </summary>
+        /// <param name="message">要顯示在狀態列上的文字。</param>
+        private void UpdateStatusBar(string message)
+        {
+            // 將訊息設定給 XAML 中名為 ApplicationLabel 的 Label 控制項
+            ApplicationLabel.Content = message;
+        }
+
+        /// <summary>
+        /// 🔔 更新狀態列次要訊息 (例如格式資訊) 的簡化方法。
+        /// </summary>
+        /// <param name="message">要顯示在狀態列次要區域上的文字。</param>
+        private void UpdateFormatStatus(string message)
+        {
+            // 將訊息設定給 XAML 中名為 TextFormatLabel 的 Label 控制項
+            TextFormatLabel.Content = message;
         }
 
         private string ConvertRtfToHtml(RichTextBox richTextBox)
         {
-            // 1. 將 RichTextBox 的內容儲存為 XAML 格式 (WPF 的內部格式)
+            // 將 RichTextBox 的內容儲存為 XAML 格式 (WPF 的內部格式)
             string xamlText = string.Empty;
             TextRange range = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
 
@@ -63,9 +87,7 @@ namespace WpfApp1
                 }
             }
 
-            // 2. 使用內建的 Helper 類別將 XAML 轉換為 HTML
-            // 由於我們不能直接從 DataFormats.Xaml 轉到 DataFormats.Html，
-            // 我們可以利用 Clipboard 幫忙做間接轉換 (這是一種常見的做法，但有點笨拙)
+            // 使用內建的 Helper 類別將 XAML 轉換為 HTML
 
             // 暫時將 XAML 內容放入剪貼簿
             Clipboard.SetData(DataFormats.Xaml, xamlText);
@@ -91,20 +113,22 @@ namespace WpfApp1
             fontColor = (Color)e.NewValue;
             SolidColorBrush bontBrush = new SolidColorBrush(fontColor);
             MainRichTextBox.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, bontBrush);
+            // 🔔 更新狀態列
+            UpdateFormatStatus($"字體顏色已變更為: {fontColor.ToString()}");
         }
 
         private void BackgroundColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
         {
-            // 1. 取得新的選定顏色
+            // 取得新的選定顏色
             backgroundColor = (Color)e.NewValue;
 
-            // 2. 建立一個 SolidColorBrush
+            // 建立一個 SolidColorBrush
             SolidColorBrush backgroundBrush = new SolidColorBrush(backgroundColor);
 
-            // 3. 將這個筆刷應用到 RichTextBox 整個文件的背景
-            // 這裡我們需要操作 Document 的第一層容器 (FlowDocument)
-            // 由於 RichTextBox 預設只有一個 Block (通常是 Paragraph)，我們可以對整個 Document 應用
+            // 將這個筆刷應用到 RichTextBox 整個文件的背景
             MainRichTextBox.Document.Background = backgroundBrush;
+            // 🔔 更新狀態列
+            UpdateFormatStatus($"文件背景顏色已變更為: {backgroundColor.ToString()}");
         }
 
 
@@ -113,6 +137,8 @@ namespace WpfApp1
             if (FontFamilyComboBox.SelectedItem != null)
             {
                 MainRichTextBox.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, FontFamilyComboBox.SelectedItem);
+                // 🔔 更新狀態列
+                UpdateFormatStatus($"字體已變更為: {FontFamilyComboBox.SelectedItem.ToString()}");
             }
         }
 
@@ -121,6 +147,8 @@ namespace WpfApp1
             if (FontSizeComboBox.SelectedItem != null)
             {
                 MainRichTextBox.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, FontSizeComboBox.SelectedItem);
+                // 🔔 更新狀態列
+                UpdateFormatStatus($"字體大小已變更為: {FontSizeComboBox.SelectedItem.ToString()} 點");
             }
         }
 
@@ -128,6 +156,8 @@ namespace WpfApp1
         {
             MyDocumentViewer myDocumentViewer = new MyDocumentViewer();
             myDocumentViewer.Show();
+            // 🔔 更新狀態列
+            UpdateStatusBar("已開啟一個新的文件視窗。");
         }
 
         private void OpenCommand_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
@@ -141,10 +171,27 @@ namespace WpfApp1
 
             if (openDialog.ShowDialog() == true)
             {
-                FileStream fileStream = new FileStream(openDialog.FileName, FileMode.Open);
-                TextRange range = new TextRange(MainRichTextBox.Document.ContentStart, MainRichTextBox.Document.ContentEnd);
-                range.Load(fileStream, DataFormats.Rtf);
-                fileStream.Close();
+                try
+                {
+                    using (FileStream fileStream = new FileStream(openDialog.FileName, FileMode.Open))
+                    {
+                        TextRange range = new TextRange(MainRichTextBox.Document.ContentStart, MainRichTextBox.Document.ContentEnd);
+                        range.Load(fileStream, DataFormats.Rtf);
+                    }
+                    // 🔔 更新狀態列
+                    UpdateStatusBar($"文件已成功開啟: {openDialog.FileName}");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"開啟檔案時發生錯誤: {ex.Message}", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // 🔔 更新狀態列 (錯誤訊息)
+                    UpdateStatusBar($"開啟檔案失敗: {ex.Message}");
+                }
+            }
+            else
+            {
+                // 🔔 更新狀態列 (取消操作)
+                UpdateStatusBar("取消開啟檔案操作。");
             }
         }
 
@@ -156,52 +203,66 @@ namespace WpfApp1
                 DefaultExt = ".rtf",
                 AddExtension = true
             };
-                if (saveDialog.ShowDialog() == true)
-                {
-                    // 取得使用者選擇的檔案名稱和篩選器索引 (FilterIndex)
-                    string fileName = saveDialog.FileName;
-                    int filterIndex = saveDialog.FilterIndex; // 1 = RTF, 2 = HTML
 
-                    try
+            if (saveDialog.ShowDialog() == true)
+            {
+                // 取得使用者選擇的檔案名稱和篩選器索引 (FilterIndex)
+                string fileName = saveDialog.FileName;
+                int filterIndex = saveDialog.FilterIndex; // 1 = RTF, 2 = HTML, 3 = All files
+
+                try
+                {
+                    if (filterIndex == 1) // 選擇 RTF 格式
                     {
-                        if (filterIndex == 1) // 選擇 RTF 格式
+                        // 使用您原有的 RTF 儲存邏輯
+                        using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
                         {
-                            // 使用您原有的 RTF 儲存邏輯
-                            using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
-                            {
-                                TextRange range = new TextRange(MainRichTextBox.Document.ContentStart, MainRichTextBox.Document.ContentEnd);
-                                range.Save(fileStream, DataFormats.Rtf);
-                            }
+                            TextRange range = new TextRange(MainRichTextBox.Document.ContentStart, MainRichTextBox.Document.ContentEnd);
+                            range.Save(fileStream, DataFormats.Rtf);
                         }
-                        else if (filterIndex == 2) // 選擇 HTML 格式
-                        {
+                        // 🔔 更新狀態列
+                        UpdateStatusBar($"RTF 文件已成功儲存至: {fileName}");
+                    }
+                    else if (filterIndex == 2) // 選擇 HTML 格式
+                    {
                         // 呼叫轉換方法，將內容轉成 HTML 字串
                         string htmlContent = ConvertRtfToHtml(MainRichTextBox);
+                        // 使用 UTF8 編碼儲存，以確保中文或特殊字元不會亂碼
                         File.WriteAllText(fileName, htmlContent, Encoding.UTF8);
 
-                        // 將 HTML 內容寫入檔案
-                        File.WriteAllText(fileName, htmlContent);
-                        }
-                        else // 其他檔案類型，可以根據 DefaultExt 設為 RTF
-                        {
-                            // 這是為了處理「所有檔案 (*.*)」的情況，我們仍然使用 RTF 儲存
-                            using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
-                            {
-                                TextRange range = new TextRange(MainRichTextBox.Document.ContentStart, MainRichTextBox.Document.ContentEnd);
-                                range.Save(fileStream, DataFormats.Rtf);
-                            }
-                        }
+                        // 🔔 更新狀態列
+                        UpdateStatusBar($"HTML 文件已成功儲存至: {fileName}");
                     }
-                    catch (Exception ex)
+                    else // 其他檔案類型，例如「所有檔案 (*.*)」，我們預設使用 RTF 儲存
                     {
-                        MessageBox.Show($"儲存檔案時發生錯誤: {ex.Message}", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+                        using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
+                        {
+                            TextRange range = new TextRange(MainRichTextBox.Document.ContentStart, MainRichTextBox.Document.ContentEnd);
+                            range.Save(fileStream, DataFormats.Rtf);
+                        }
+                        // 🔔 更新狀態列
+                        UpdateStatusBar($"文件已儲存 (預設 RTF 格式): {fileName}");
                     }
                 }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"儲存檔案時發生錯誤: {ex.Message}", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // 🔔 更新狀態列 (錯誤訊息)
+                    UpdateStatusBar($"儲存失敗: {ex.Message}");
+                }
             }
+            else
+            {
+                // 🔔 更新狀態列 (取消操作)
+                UpdateStatusBar("取消儲存檔案操作。");
+            }
+        }
 
         private void ClearFileButton_Click(object sender, RoutedEventArgs e)
         {
             MainRichTextBox.Document.Blocks.Clear();
+            // 🔔 更新狀態列
+            UpdateStatusBar("文件內容已清除。");
         }
 
         private void MainRichTextBox_SelectionChanged(object sender, RoutedEventArgs e)
@@ -228,9 +289,13 @@ namespace WpfApp1
             var property_background = MainRichTextBox.Document.Background;
             if (property_background != null && property_background is SolidColorBrush bgBrush)
             {
-                // 假設你的背景顏色選擇器命名為 BackgroundColorPicker
                 BackgroundColorPicker.SelectedColor = bgBrush.Color;
             }
+
+            // 🔔 當選取範圍改變時，更新 TextFormatLabel 顯示當前的格式狀態
+            string currentFont = (property_fontfamily as FontFamily)?.Source ?? "預設字體";
+            string currentSize = property_fontsize?.ToString() ?? "預設大小";
+            UpdateFormatStatus($"當前格式: {currentFont}, {currentSize} 點");
         }
     }
 
